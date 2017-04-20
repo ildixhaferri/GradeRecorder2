@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".LoginActivity">
+
+    <item
+        android:id="@+id/menu_context_edit"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="ifRoom"
+        android:title="@string/edit"
+        android:titleCondensed="@string/edit"
+        tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/menu_context_remove"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:showAsAction="ifRoom"
+        android:title="@string/remove"
+        android:titleCondensed="@string/remove"
+        tools:ignore="AppCompatResource" />
+</menu>

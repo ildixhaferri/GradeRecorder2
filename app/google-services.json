@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "577627374471",
+    "firebase_url": "https://graderecorder-aa1c2.firebaseio.com",
+    "project_id": "graderecorder-aa1c2",
+    "storage_bucket": "graderecorder-aa1c2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577627374471:android:7793f2c83ea01577",
+        "android_client_info": {
+          "package_name": "com.aim.graderecorder2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "577627374471-jr57ggtt4kuqau53gl7rpv3v6reogagu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxQdRHn-iiD5HUGdF-WnBntzDWwtPL3iQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

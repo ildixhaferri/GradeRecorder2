@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+
+    <color name="primary">#333</color>
+    <color name="primary_dark">#000</color>
+    <color name="accent">#800000</color>
+    <color name="color_grade_entry">#70c7e6f0</color>
+    <color name="color_courses">#70d2f0c7</color>
+    <color name="color_owners">#70e6c7f0</color>
+    <color name="color_students">#70f0d1c7</color>
+    <color name="color_assignments">#70dddddd</color>
+    <color name="white">#ffffffff</color>
+</resources>
