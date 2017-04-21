@@ -11,11 +11,13 @@ import com.aim.graderecorder2.Constants;
 import com.aim.graderecorder2.R;
 import com.aim.graderecorder2.fragments.StudentListFragment;
 import com.aim.graderecorder2.models.Student;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,13 +28,13 @@ public final class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.Vi
 
     private final StudentListFragment mStudentListFragment;
     private String mCourseKey;
-    private Firebase mStudentsRef;
+    private DatabaseReference mStudentsRef;
     private List<Student> mStudents = new ArrayList<>();
 
     public StudentAdapter(StudentListFragment studentListFragment, String courseKey) {
         mStudentListFragment = studentListFragment;
         mCourseKey = courseKey;
-        mStudentsRef = new Firebase(Constants.STUDENTS_PATH);
+        mStudentsRef = FirebaseDatabase.getInstance().getReference(Constants.STUDENTS_PATH);
         // NOTE: only listen to students in this course.
         Query studentsForCourseRef = mStudentsRef.orderByChild(Student.COURSE_KEY).equalTo(courseKey);
         studentsForCourseRef.addChildEventListener(new StudentsChildEventListener());
@@ -119,7 +121,7 @@ public final class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.Vi
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
             Log.e(Constants.TAG, "Error: " + firebaseError.getMessage());
         }
 

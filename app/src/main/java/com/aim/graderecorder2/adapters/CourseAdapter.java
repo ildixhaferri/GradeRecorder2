@@ -13,11 +13,13 @@ import com.aim.graderecorder2.fragments.CourseListFragment;
 import com.aim.graderecorder2.models.Course;
 import com.aim.graderecorder2.models.Owner;
 import com.aim.graderecorder2.utils.SharedPreferencesUtils;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,8 +34,8 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
 
     private final CourseListFragment.OnCourseSelectedListener mCourseSelectedListener;
     private String mUid;
-    private Firebase mOwnerRef;
-    private Firebase mCoursesRef;
+    private DatabaseReference mOwnerRef;
+    private DatabaseReference mCoursesRef;
     private ArrayList<Course> mCourses = new ArrayList<>();
 
     public CourseAdapter(CourseListFragment courseListFragment, CourseListFragment.OnCourseSelectedListener listener) {
@@ -47,13 +49,13 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
 
         assert (!mUid.isEmpty()); // Consider: use if (BuildConfig.DEBUG)
 
-        mCoursesRef = new Firebase(Constants.COURSES_PATH);
+        mCoursesRef = FirebaseDatabase.getInstance().getReference(Constants.COURSES_PATH);
         // Deep query. Find the courses owned by me
         Query query = mCoursesRef.orderByChild("owners/" + mUid).equalTo(true);
         query.addChildEventListener(new CoursesChildEventListener());
 
         // This is so that a new course can be pushed to the onwers path as well.
-        mOwnerRef = new Firebase(Constants.OWNERS_PATH + "/" + mUid);
+        mOwnerRef = FirebaseDatabase.getInstance().getReference(Constants.OWNERS_PATH + "/" + mUid);
     }
 
     @Override
@@ -69,7 +71,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
 
     public void firebasePush(String courseName) {
         // Create a new auto-ID for a course in the courses path
-        Firebase ref = mCoursesRef.push();
+        DatabaseReference ref = mCoursesRef.push();
         // Add the course to the courses path
         ref.setValue(new Course(courseName, mUid));
 
@@ -82,7 +84,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
 
     public void firebaseEdit(Course course, String newCourseName) {
         // Since there is only 1 editable field, we set it directly by tunneling down the path 1 more level.
-        Firebase courseNameRef = new Firebase(Constants.COURSES_PATH + "/" + course.getKey() + "/" + Course.NAME);
+        DatabaseReference courseNameRef = FirebaseDatabase.getInstance().getReference(Constants.COURSES_PATH + "/" + course.getKey() + "/" + Course.NAME);
         courseNameRef.setValue(newCourseName);
     }
 
@@ -144,7 +146,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
             Log.e("TAG", "onCancelled. Error: " + firebaseError.getMessage());
 
         }

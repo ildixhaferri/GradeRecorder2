@@ -14,11 +14,12 @@ import com.aim.graderecorder2.R;
 import com.aim.graderecorder2.fragments.AssignmentListFragment;
 import com.aim.graderecorder2.models.Assignment;
 import com.aim.graderecorder2.utils.Utils;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +29,7 @@ public final class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdap
 
     private final AssignmentListFragment.OnAssignmentSelectedListener mAssignmentSelectedListener;
     private String mCourseKey;
-    private Firebase mAssignmentsRef;
+    private DatabaseReference mAssignmentsRef;
     private ArrayList<Assignment> mAssignments = new ArrayList<>();
     private AssignmentListFragment mAssignmentListFragment;
 
@@ -39,14 +40,14 @@ public final class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdap
         mAssignmentSelectedListener = assignmentSelectedListener;
 
         mCourseKey = courseKey;
-        mAssignmentsRef = new Firebase(Constants.ASSIGNMENTS_PATH);
+        mAssignmentsRef = FirebaseDatabase.getInstance().getReference(Constants.ASSIGNMENTS_PATH);
         Query assignmentsForCourseRef = mAssignmentsRef.orderByChild(Assignment.COURSE_KEY).equalTo(courseKey);
         assignmentsForCourseRef.addChildEventListener(new AssignmentsChildEventListener());
     }
 
     public void firebasePush(final String name, final double maxGrade) {
         Assignment assignment = new Assignment(mCourseKey, name, maxGrade);
-        Firebase assignmentRef = mAssignmentsRef.push();
+        DatabaseReference assignmentRef = mAssignmentsRef.push();
         String assignmentKey = assignmentRef.getKey();
         assignmentRef.setValue(assignment);
 
@@ -129,9 +130,10 @@ public final class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdap
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
-            Log.e("TAG", "Error: " + firebaseError.getMessage());
+        public void onCancelled(DatabaseError databaseError) {
+            Log.e("TAG", "Error: " + databaseError.getMessage());
         }
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {

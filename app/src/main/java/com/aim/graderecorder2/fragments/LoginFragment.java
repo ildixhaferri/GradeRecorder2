@@ -5,9 +5,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -24,12 +26,21 @@ import com.aim.graderecorder2.Constants;
 import com.aim.graderecorder2.GradeRecorderActivity;
 import com.aim.graderecorder2.models.Owner;
 import com.aim.graderecorder2.utils.SharedPreferencesUtils;
-import com.firebase.client.AuthData;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+
 import com.aim.graderecorder2.R;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import static android.content.ContentValues.TAG;
 
 public class LoginFragment extends Fragment {
 
@@ -41,10 +52,12 @@ public class LoginFragment extends Fragment {
     private View mProgressSpinner;
     private boolean mLoggingIn;
     private OnLoginListener mOnLoginListener;
-    private Firebase mFirebaseRef;
+    private DatabaseReference mFirebaseRef;
     private String mUid;
     private OwnerValueEventListener mOwnerValueEventListener;
-    private Firebase mOwnerRef;
+    private DatabaseReference mOwnerRef;
+
+    private FirebaseAuth mAuth;
 
     public LoginFragment() {
 
@@ -55,7 +68,8 @@ public class LoginFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mLoggingIn = false;
-        mFirebaseRef = new Firebase(Constants.FIREBASE_URL);
+        mFirebaseRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_URL);
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -158,7 +172,21 @@ public class LoginFragment extends Fragment {
             // show progress spinner, and start background task to login
             showProgress(true);
             mLoggingIn = true;
-            mFirebaseRef.authWithPassword(email, password, new EmailPasswordAuthResultHandler());
+            mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()){
+                        //Sign in success , update UI with the signed-in user's information
+                        Log.d(TAG,"signInWithEmail: success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                    }
+                    else {
+                        // If sign in fails, display a message
+                        Log.w(TAG, "signInWithEmail: failure", task.getException());
+                        Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
             hideKeyboard();
         }
     }
@@ -219,7 +247,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void checkLogin() {
-        mOwnerRef = new Firebase(Constants.OWNERS_PATH + "/" + mUid);
+        mOwnerRef =FirebaseDatabase.getInstance().getReference(Constants.OWNERS_PATH + "/" + mUid);
 
         if (mOwnerValueEventListener != null) {
             mOwnerRef.removeEventListener(mOwnerValueEventListener);
@@ -241,7 +269,7 @@ public class LoginFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String roseUsername = roseUsernameEditText.getText().toString();
-                        mOwnerRef = new Firebase(Constants.OWNERS_PATH + "/" + mUid);
+                        mOwnerRef = FirebaseDatabase.getInstance().getReference(Constants.OWNERS_PATH + "/" + mUid);
                         mOwnerRef.child(Owner.USERNAME).setValue(roseUsername);
                         mOnLoginListener.onLoginComplete();
                     }
@@ -255,21 +283,25 @@ public class LoginFragment extends Fragment {
         void onLoginComplete();
     }
 
-    class EmailPasswordAuthResultHandler implements Firebase.AuthResultHandler {
-        @Override
-        public void onAuthenticated(AuthData authData) {
-            Log.d(Constants.TAG, "User is authenticated");
-            mUid = authData.getUid();
-            SharedPreferencesUtils.setCurrentUser(getContext(), mUid);
-            checkLogin();
-        }
+    /*
+    class EmailPasswordAuthResultHandler implements OnCompleteListener<AuthResult>() {
 
         @Override
-        public void onAuthenticationError(FirebaseError firebaseError) {
-            Toast.makeText(getContext(), "User failed authentication: " + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        public void onComplete(@NonNull Task<AuthResult> task){
+        if (task.isSuccessful()) {
+            // Sign in success, update UI with the signed-in user's information
+            Log.d(TAG, "signInWithEmail:success");
+            FirebaseUser user = mAuth.getCurrentUser();
+            updateUI(user);
+        } else {
+            // If sign in fails, display a message to the user.
+            Log.w(TAG, "signInWithEmail:failure", task.getException());
+            Toast.makeText(getActivity(), "Authentication failed.",
+                    Toast.LENGTH_SHORT).show();
+            updateUI(null);
+
     }
-
+   */
 
 
     class OwnerValueEventListener implements ValueEventListener {
@@ -288,7 +320,7 @@ public class LoginFragment extends Fragment {
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
             Log.d(Constants.TAG, "OwnerValueListener cancelled: " + firebaseError);
         }
     }

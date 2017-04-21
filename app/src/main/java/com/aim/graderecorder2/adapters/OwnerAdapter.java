@@ -16,11 +16,12 @@ import com.aim.graderecorder2.models.Course;
 import com.aim.graderecorder2.models.Owner;
 import com.aim.graderecorder2.utils.SharedPreferencesUtils;
 import com.aim.graderecorder2.utils.Utils;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -33,9 +34,9 @@ public class OwnerAdapter extends RecyclerView.Adapter<OwnerAdapter.ViewHolder> 
     private final OwnerListFragment.OnThisOwnerRemovedListener mOnThisOwnerRemovedListener;
 
     private String mCourseKey;
-    private Firebase mCourseRef;
+    private DatabaseReference mCourseRef;
     private Course mCourse;
-    private Firebase mOwnersRef;
+    private DatabaseReference mOwnersRef;
     private ArrayList<Owner> mOwners = new ArrayList<>();
 
     public OwnerAdapter(OwnerListFragment ownerListFragment, String courseKey, OwnerListFragment.OnThisOwnerRemovedListener onThisOwnerRemovedListener) {
@@ -45,10 +46,10 @@ public class OwnerAdapter extends RecyclerView.Adapter<OwnerAdapter.ViewHolder> 
         mOnThisOwnerRemovedListener = onThisOwnerRemovedListener;
 
         // In the current course
-        mCourseRef = new Firebase(Constants.COURSES_PATH + "/" + mCourseKey);
+        mCourseRef = FirebaseDatabase.getInstance().getReference(Constants.COURSES_PATH + "/" + mCourseKey);
         mCourseRef.addValueEventListener(new CourseValueEventListener());
 
-        mOwnersRef = new Firebase(Constants.OWNERS_PATH);
+        mOwnersRef = FirebaseDatabase.getInstance().getReference(Constants.OWNERS_PATH);
     }
 
     public void addOwner(final String username) {
@@ -90,7 +91,7 @@ public class OwnerAdapter extends RecyclerView.Adapter<OwnerAdapter.ViewHolder> 
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 // empty
             }
         });
@@ -142,14 +143,14 @@ public class OwnerAdapter extends RecyclerView.Adapter<OwnerAdapter.ViewHolder> 
             // Start with fresh list of owners so we don't add to existing ones when we add a new owner.
             mOwners.clear();
             for (DataSnapshot ownerUid : dataSnapshot.child(Course.OWNERS).getChildren()) {
-                Firebase ownerRef = new Firebase(Constants.OWNERS_PATH + "/" + ownerUid.getKey());
+                DatabaseReference ownerRef =FirebaseDatabase.getInstance().getReference(Constants.OWNERS_PATH + "/" + ownerUid.getKey());
                 OwnerValueEventListener listener = new OwnerValueEventListener();
                 ownerRef.addListenerForSingleValueEvent(listener);
             }
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
             Log.d(Constants.TAG, "CourseValueListener cancelled: " + firebaseError);
         }
     }
@@ -166,7 +167,7 @@ public class OwnerAdapter extends RecyclerView.Adapter<OwnerAdapter.ViewHolder> 
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
             Log.d(Constants.TAG, "OwnerValueListener cancelled: " + firebaseError);
         }
     }

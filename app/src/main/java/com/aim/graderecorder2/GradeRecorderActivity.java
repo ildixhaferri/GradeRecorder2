@@ -23,7 +23,9 @@ import com.aim.graderecorder2.models.Assignment;
 import com.aim.graderecorder2.models.Course;
 import com.aim.graderecorder2.utils.SharedPreferencesUtils;
 import com.aim.graderecorder2.utils.Utils;
-import com.firebase.client.Firebase;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 
 public class GradeRecorderActivity extends AppCompatActivity implements
                 NavigationView.OnNavigationItemSelectedListener,
@@ -35,7 +37,7 @@ public class GradeRecorderActivity extends AppCompatActivity implements
 
                     private FloatingActionButton mFab;
                     private Toolbar mToolbar;
-                    private Firebase mFirebaseRef;
+                    private DatabaseReference mFirebaseRef;
 
                     public FloatingActionButton getFab() {return mFab;}
 
@@ -64,9 +66,9 @@ public class GradeRecorderActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        if (savedInstanceState == null) { Firebase.setAndroidContext(this);}
+        if (savedInstanceState == null) //{ Firebase.setAndroidContext(this);}
 
-        mFirebaseRef = new Firebase(Constants.FIREBASE_URL);
+        mFirebaseRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_URL);
         if (mFirebaseRef.getAuth() == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.container, new LoginFragment());

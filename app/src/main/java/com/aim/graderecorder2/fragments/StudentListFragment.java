@@ -29,11 +29,11 @@ import com.aim.graderecorder2.R;
 import com.aim.graderecorder2.adapters.StudentAdapter;
 import com.aim.graderecorder2.models.Student;
 import com.aim.graderecorder2.utils.SharedPreferencesUtils;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
-
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 public class StudentListFragment extends Fragment {
@@ -115,7 +115,7 @@ public class StudentListFragment extends Fragment {
 
 
         // Get the name of the course. See listener below.
-        Firebase courseRef = new Firebase(Constants.COURSES_PATH + "/" + currentCourseKey);
+        DatabaseReference courseRef = FirebaseDatabase.getInstance().getReference(Constants.COURSES_PATH + "/" + currentCourseKey);
         courseRef.child("name").addListenerForSingleValueEvent(new CourseNameValueEventListener());
         Log.d(Constants.TAG, "Adding listener for course key: " + currentCourseKey + " for path " + courseRef.child("name").toString());
 
@@ -130,7 +130,7 @@ public class StudentListFragment extends Fragment {
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
             // empty
         }
     }

@@ -8,12 +8,13 @@ import com.aim.graderecorder2.Constants;
 import com.aim.graderecorder2.models.Assignment;
 import com.aim.graderecorder2.models.Course;
 import com.aim.graderecorder2.models.Owner;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
-import com.firebase.client.ValueEventListener;
-
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 
 /**
@@ -24,11 +25,11 @@ public class Utils {
     public static void removeCourse(Context context, Course course) {
         // MB: Moved to first to try to speed up UI. Test for race conditions.
         // Removes from list of courses
-        Firebase courseRef = new Firebase(Constants.COURSES_PATH + "/" + course.getKey());
+        DatabaseReference courseRef = FirebaseDatabase.getInstance().getReference(Constants.COURSES_PATH + "/" + course.getKey());
         courseRef.removeValue();
 
         // Remove this course from all its owners.
-        Firebase ownersRef = new Firebase(Constants.OWNERS_PATH);
+        DatabaseReference ownersRef = FirebaseDatabase.getInstance().getReference(Constants.OWNERS_PATH);
         for (String uid : course.getOwners().keySet()) {
             ownersRef.child(uid).child(Owner.COURSES).child(course.getKey()).removeValue();
         }
@@ -37,7 +38,7 @@ public class Utils {
 
 
         // Remove all assignments
-        final Firebase assignmentsRef = new Firebase(Constants.ASSIGNMENTS_PATH);
+        final DatabaseReference assignmentsRef =  FirebaseDatabase.getInstance().getReference((Constants.ASSIGNMENTS_PATH));
         Query assignmentsForCourseRef = assignmentsRef.orderByChild(Assignment.COURSE_KEY).equalTo(course.getKey());
         assignmentsForCourseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -48,7 +49,7 @@ public class Utils {
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 Log.d(Constants.TAG, "Cancelled");
             }
         });
@@ -67,8 +68,8 @@ public class Utils {
         SharedPreferencesUtils.removeCurrentUser(context);
 
         // Log out
-        Firebase ref = new Firebase(Constants.FIREBASE_URL);
-        ref.unauth();
+        FirebaseAuth mAuth ;
+        mAuth.signOut();
     }
 
 
@@ -87,7 +88,7 @@ public class Utils {
         }
 
         // Otherwise, get the course name from Firebase
-        Firebase courseRef = new Firebase(Constants.COURSES_PATH + "/" + currentCourseKey);
+        DatabaseReference courseRef = FirebaseDatabase.getInstance().getReference((Constants.COURSES_PATH + "/" + currentCourseKey));
         Log.d(Constants.TAG, "Adding listener for course key: " + currentCourseKey + " for path " + courseRef.child("name").toString());
         courseRef.child("name").addListenerForSingleValueEvent(new ValueEventListener() {
 
@@ -98,7 +99,7 @@ public class Utils {
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError) {
                 // empty
             }
         });
