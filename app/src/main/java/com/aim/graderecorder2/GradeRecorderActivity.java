@@ -23,6 +23,8 @@ import com.aim.graderecorder2.models.Assignment;
 import com.aim.graderecorder2.models.Course;
 import com.aim.graderecorder2.utils.SharedPreferencesUtils;
 import com.aim.graderecorder2.utils.Utils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -43,6 +45,8 @@ public class GradeRecorderActivity extends AppCompatActivity implements
 
                     public Toolbar getToolbar () {return mToolbar;}
 
+                    FirebaseAuth   mFirebaseAuth;
+                    FirebaseUser    mFirebaseUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,8 +72,11 @@ public class GradeRecorderActivity extends AppCompatActivity implements
 
         if (savedInstanceState == null) //{ Firebase.setAndroidContext(this);}
 
-        mFirebaseRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_URL);
-        if (mFirebaseRef.getAuth() == null) {
+
+            mFirebaseAuth  = FirebaseAuth.getInstance(); //to get methods to sign the user in
+            mFirebaseUser = mFirebaseAuth.getCurrentUser(); // if is already logged in get the user
+        mFirebaseRef = FirebaseDatabase.getInstance().getReference();
+        if (mFirebaseUser == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.container, new LoginFragment());
             ft.commit();
@@ -82,16 +89,16 @@ public class GradeRecorderActivity extends AppCompatActivity implements
     //end of Create
 
         private void initializeFirebase() {
-                   Firebase.setAndroidContext(this);
-                    Firebase.getDefaultConfig().setPersistenceEnabled(true);
-                    mFirebaseRef = new Firebase(Constants.FIREBASE_URL);
+                  // Firebase.setAndroidContext(this);
+                  //  Firebase.getDefaultConfig().setPersistenceEnabled(true);
+                    mFirebaseRef = FirebaseDatabase.getInstance().getReference();
                     mFirebaseRef.keepSynced(true);
                 }
 
         @Override
         public void onLoginComplete() {
             Log.d(Constants.TAG , "User is authenticated");
-            String uid = mFirebaseRef.getAuth().getUid();
+            String uid = mFirebaseUser.getUid();
             SharedPreferencesUtils.setCurrentUser(this, uid);
 
             //Check if they have a current course

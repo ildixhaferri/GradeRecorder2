@@ -68,7 +68,7 @@ public class Utils {
         SharedPreferencesUtils.removeCurrentUser(context);
 
         // Log out
-        FirebaseAuth mAuth ;
+        FirebaseAuth mAuth  = FirebaseAuth.getInstance();
         mAuth.signOut();
     }
 

@@ -68,7 +68,7 @@ public class LoginFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mLoggingIn = false;
-        mFirebaseRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_URL);
+        mFirebaseRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
     }
 
@@ -177,12 +177,12 @@ public class LoginFragment extends Fragment {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()){
                         //Sign in success , update UI with the signed-in user's information
-                        Log.d(TAG,"signInWithEmail: success");
+                        Log.d("SIGNIN","signInWithEmail: success");
                         FirebaseUser user = mAuth.getCurrentUser();
                     }
                     else {
                         // If sign in fails, display a message
-                        Log.w(TAG, "signInWithEmail: failure", task.getException());
+                        Log.w("SIGNIN", "signInWithEmail: failure", task.getException());
                         Toast.makeText(getActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
                     }
                 }

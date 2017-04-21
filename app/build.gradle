@@ -16,6 +16,7 @@ android {
         applicationId "com.aim.graderecorder2"
         minSdkVersion 14
         targetSdkVersion 25
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -37,7 +38,7 @@ dependencies {
     compile 'com.google.firebase:firebase-auth:10.0.0'
     //compile 'com.github.rockwotj:rosefire:android-v1.3.0'
     compile 'com.android.support:support-v4:25.0.0'
-    //compile 'com.firebase:firebase-client-android:2.5.0'
+
     compile 'com.google.firebase:firebase-core:10.0.0'
     //
     compile 'com.google.android.gms:play-services-auth:10.0.0'
@@ -45,6 +46,11 @@ dependencies {
     compile 'com.google.firebase:firebase-database:10.0.0'
     compile 'com.google.firebase:firebase-crash:10.0.0'
     compile 'com.google.android.gms:play-services:10.0.0'
+
+    compile 'com.firebase:firebase-client-android:2.5.0'
+
+    //
+    compile 'com.android.support:multidex:1.0.1'
 }
 
 apply plugin : 'com.google.gms.google-services'
